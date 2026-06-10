@@ -8,9 +8,7 @@ import {
   Mic,
   Pause,
   Play,
-  Plus,
   Search,
-  Share2,
   X,
 } from "lucide-react";
 
