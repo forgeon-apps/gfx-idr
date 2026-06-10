@@ -1,16 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-"use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Camera,
-  ChevronDown,
-  Mic,
-  Pause,
-  Play,
-  Search,
-  X,
-} from "lucide-react";
+'use client';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+import { Camera, ChevronDown, Mic, Pause, Play, Search, X } from 'lucide-react';
 
 type RuntimeRef = {
   rafId: number | null;
@@ -40,35 +34,47 @@ const EDM_RATE_VOLATILITY = 980;
 
 // Put your mp3 here:
 // public/audio/oke-gas.mp3
-const AUDIO_SRC = "/audio/oke-gas.mp3";
+const AUDIO_SRC = '/audio/oke-gas.mp3';
 
-const tabs = ["AI Mode", "All", "Finance", "News", "Images", "Shopping", "Forums", "More", "Tools"];
-const ranges = ["1D", "5D", "1M", "1Y", "5Y", "Max"];
+const tabs = [
+  'AI Mode',
+  'All',
+  'Finance',
+  'News',
+  'Images',
+  'Shopping',
+  'Forums',
+  'More',
+  'Tools',
+];
+const ranges = ['1D', '5D', '1M', '1Y', '5Y', 'Max'];
 
 const googleLikeSeries = [
-  17370, 17425, 17555, 17512, 17555, 17562, 17598, 17600, 17600,
-  17698, 17765, 17670, 17692, 17676, 17679, 17696, 17750, 17718,
-  17802, 17782, 17813, 17812, 17802, 17842, 17833, 17995, 17955,
-  18080, 18080, 18022, 18188, 18038, 17950,
+  17370, 17425, 17555, 17512, 17555, 17562, 17598, 17600, 17600, 17698, 17765,
+  17670, 17692, 17676, 17679, 17696, 17750, 17718, 17802, 17782, 17813, 17812,
+  17802, 17842, 17833, 17995, 17955, 18080, 18080, 18022, 18188, 18038, 17950,
 ];
 
 function formatIDR(value: number) {
-  return new Intl.NumberFormat("id-ID", {
+  return new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
 }
 
 function formatShortTime(value: number) {
-  if (!Number.isFinite(value)) return "0:00";
+  if (!Number.isFinite(value)) return '0:00';
   const minutes = Math.floor(value / 60);
   const seconds = Math.floor(value % 60);
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 function getCssVar(name: string, fallback: string) {
-  if (typeof window === "undefined") return fallback;
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+  if (typeof window === 'undefined') return fallback;
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
 }
 
 function sampleFrequency(freq: Uint8Array, index: number, total: number) {
@@ -101,40 +107,42 @@ export function GoogleFxSearchMock() {
   });
 
   const [rate, setRate] = useState(BASE_RATE);
-  const [usd, setUsd] = useState("1");
-  const [searchQuery, setSearchQuery] = useState("usd to idr");
-  const [trafficLabel, setTrafficLabel] = useState("idle");
+  const [usd, setUsd] = useState('1');
+  const [searchQuery, setSearchQuery] = useState('usd to idr');
+  const [trafficLabel, setTrafficLabel] = useState('idle');
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [audioError, setAudioError] = useState("");
+  const [audioError, setAudioError] = useState('');
 
-  const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
+  const progress =
+    duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   const converted = useMemo(() => {
-    const parsed = Number(usd.replace(",", "."));
+    const parsed = Number(usd.replace(',', '.'));
     return formatIDR((Number.isFinite(parsed) ? parsed : 0) * rate);
   }, [rate, usd]);
 
   const setupAudio = async () => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const audioElement = playerRef.current;
     if (!audioElement) return;
 
     const AudioContextClass =
       window.AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
 
     if (!AudioContextClass) {
-      throw new Error("This browser does not support Web Audio API.");
+      throw new Error('This browser does not support Web Audio API.');
     }
 
     if (!runtime.current.audioContext) {
       runtime.current.audioContext = new AudioContextClass();
     }
 
-    const audioContext = runtime.current.audioContext;
+    const { audioContext } = runtime.current;
 
     if (!runtime.current.analyser) {
       const analyser = audioContext.createAnalyser();
@@ -143,11 +151,14 @@ export function GoogleFxSearchMock() {
       analyser.connect(audioContext.destination);
 
       runtime.current.analyser = analyser;
-      runtime.current.frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      runtime.current.frequencyData = new Uint8Array(
+        analyser.frequencyBinCount
+      );
     }
 
     if (!runtime.current.mediaSource) {
-      runtime.current.mediaSource = audioContext.createMediaElementSource(audioElement);
+      runtime.current.mediaSource =
+        audioContext.createMediaElementSource(audioElement);
       runtime.current.mediaSource.connect(runtime.current.analyser);
     }
 
@@ -158,20 +169,23 @@ export function GoogleFxSearchMock() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
 
-    if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+    if (
+      canvas.width !== Math.floor(rect.width * dpr) ||
+      canvas.height !== Math.floor(rect.height * dpr)
+    ) {
       canvas.width = Math.floor(rect.width * dpr);
       canvas.height = Math.floor(rect.height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    const width = rect.width;
-    const height = rect.height;
+    const { width } = rect;
+    const { height } = rect;
 
     const plotLeft = 54;
     const plotRight = width - 2;
@@ -180,9 +194,9 @@ export function GoogleFxSearchMock() {
     const plotWidth = plotRight - plotLeft;
     const plotHeight = plotBottom - plotTop;
 
-    const grid = "rgba(154, 160, 166, 0.24)";
-    const muted = "rgba(232, 234, 237, 0.86)";
-    const green = getCssVar("--google-fx-green", "#81c995");
+    const grid = 'rgba(154, 160, 166, 0.24)';
+    const muted = 'rgba(232, 234, 237, 0.86)';
+    const green = getCssVar('--google-fx-green', '#81c995');
 
     let freq: Uint8Array | null = null;
     let intensity = 0;
@@ -194,7 +208,9 @@ export function GoogleFxSearchMock() {
       runtime.current.analyser &&
       runtime.current.frequencyData
     ) {
-      runtime.current.analyser.getByteFrequencyData(runtime.current.frequencyData);
+      runtime.current.analyser.getByteFrequencyData(
+        runtime.current.frequencyData
+      );
       freq = runtime.current.frequencyData;
 
       for (let i = 0; i < freq.length; i += 1) {
@@ -216,9 +232,10 @@ export function GoogleFxSearchMock() {
       }
 
       bassEnergy /= bassBins;
-      midEnergy /= (midEnd - midStart);
+      midEnergy /= midEnd - midStart;
 
-      runtime.current.lastIntensity += (intensity - runtime.current.lastIntensity) * 0.18;
+      runtime.current.lastIntensity +=
+        (intensity - runtime.current.lastIntensity) * 0.18;
       runtime.current.phase += 0.032 + bassEnergy * 0.026;
     } else {
       runtime.current.lastIntensity = 0;
@@ -226,12 +243,13 @@ export function GoogleFxSearchMock() {
 
     ctx.clearRect(0, 0, width, height);
 
-    ctx.font = "700 11px Arial, sans-serif";
-    ctx.textBaseline = "middle";
+    ctx.font = '700 11px Arial, sans-serif';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = muted;
 
     [18500, 18000, 17500, 17000].forEach((value) => {
-      const y = plotTop + ((MAX_CHART - value) / (MAX_CHART - MIN_CHART)) * plotHeight;
+      const y =
+        plotTop + ((MAX_CHART - value) / (MAX_CHART - MIN_CHART)) * plotHeight;
 
       ctx.strokeStyle = grid;
       ctx.lineWidth = 1;
@@ -240,26 +258,34 @@ export function GoogleFxSearchMock() {
       ctx.lineTo(plotRight, y);
       ctx.stroke();
 
-      ctx.fillText(new Intl.NumberFormat("id-ID").format(value), 0, y);
+      ctx.fillText(new Intl.NumberFormat('id-ID').format(value), 0, y);
     });
 
-    ctx.font = "700 12px Arial, sans-serif";
-    ctx.fillStyle = "#e8eaed";
-    ctx.fillText("20 May", plotLeft + plotWidth * 0.34, height - 16);
-    ctx.fillText("1 Jun", plotLeft + plotWidth * 0.75, height - 16);
+    ctx.font = '700 12px Arial, sans-serif';
+    ctx.fillStyle = '#e8eaed';
+    ctx.fillText('20 May', plotLeft + plotWidth * 0.34, height - 16);
+    ctx.fillText('1 Jun', plotLeft + plotWidth * 0.75, height - 16);
 
     const points = googleLikeSeries.map((value, index) => {
       let yValue = value;
 
       if (audioIsPlaying && freq) {
         const raw = sampleFrequency(freq, index, googleLikeSeries.length);
-        const shaped = Math.pow(raw, 0.58);
+        const shaped = raw ** 0.58;
 
         // More energetic than the first version, but still inside Google's compact chart.
         const audioWave = (shaped - 0.38) * EDM_LINE_WAVE;
-        const bassPunch = Math.sin(runtime.current.phase * 2.25 + index * 0.42) * bassEnergy * EDM_BASS_PUNCH;
-        const midRipple = Math.sin(runtime.current.phase * 3.6 + index * 1.08) * midEnergy * EDM_MID_RIPPLE;
-        const breathingWave = Math.sin(runtime.current.phase * 1.85 + index * 0.82) * EDM_BREATHING_WAVE;
+        const bassPunch =
+          Math.sin(runtime.current.phase * 2.25 + index * 0.42) *
+          bassEnergy *
+          EDM_BASS_PUNCH;
+        const midRipple =
+          Math.sin(runtime.current.phase * 3.6 + index * 1.08) *
+          midEnergy *
+          EDM_MID_RIPPLE;
+        const breathingWave =
+          Math.sin(runtime.current.phase * 1.85 + index * 0.82) *
+          EDM_BREATHING_WAVE;
 
         yValue = value + audioWave + bassPunch + midRipple + breathingWave;
 
@@ -268,15 +294,16 @@ export function GoogleFxSearchMock() {
       }
 
       const x = plotLeft + (index / (googleLikeSeries.length - 1)) * plotWidth;
-      const y = plotTop + ((MAX_CHART - yValue) / (MAX_CHART - MIN_CHART)) * plotHeight;
+      const y =
+        plotTop + ((MAX_CHART - yValue) / (MAX_CHART - MIN_CHART)) * plotHeight;
 
       return { x, y };
     });
 
     const area = ctx.createLinearGradient(0, plotTop, 0, plotBottom);
-    area.addColorStop(0, "rgba(129, 201, 149, 0.34)");
-    area.addColorStop(0.72, "rgba(129, 201, 149, 0.11)");
-    area.addColorStop(1, "rgba(129, 201, 149, 0.01)");
+    area.addColorStop(0, 'rgba(129, 201, 149, 0.34)');
+    area.addColorStop(0.72, 'rgba(129, 201, 149, 0.11)');
+    area.addColorStop(1, 'rgba(129, 201, 149, 0.01)');
 
     ctx.beginPath();
     ctx.moveTo(points[0].x, plotBottom);
@@ -288,12 +315,12 @@ export function GoogleFxSearchMock() {
 
     if (audioIsPlaying) {
       ctx.save();
-      ctx.shadowColor = "rgba(129, 201, 149, 0.62)";
+      ctx.shadowColor = 'rgba(129, 201, 149, 0.62)';
       ctx.shadowBlur = 8 + runtime.current.lastIntensity * 12;
-      ctx.strokeStyle = "rgba(129, 201, 149, 0.34)";
+      ctx.strokeStyle = 'rgba(129, 201, 149, 0.34)';
       ctx.lineWidth = 5.2;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
       ctx.beginPath();
 
       points.forEach((point, index) => {
@@ -307,8 +334,8 @@ export function GoogleFxSearchMock() {
 
     ctx.strokeStyle = green;
     ctx.lineWidth = audioIsPlaying ? 2.65 : 2.35;
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.beginPath();
 
     points.forEach((point, index) => {
@@ -330,8 +357,10 @@ export function GoogleFxSearchMock() {
       const bassKick = bassEnergy * 180;
       const marketBreath = Math.sin(runtime.current.phase * 1.35) * 28;
 
-      runtime.current.targetRate = BASE_RATE + volatility + bassKick + marketBreath;
-      runtime.current.currentRate += (runtime.current.targetRate - runtime.current.currentRate) * 0.09;
+      runtime.current.targetRate =
+        BASE_RATE + volatility + bassKick + marketBreath;
+      runtime.current.currentRate +=
+        (runtime.current.targetRate - runtime.current.currentRate) * 0.09;
 
       const now = performance.now();
 
@@ -340,27 +369,34 @@ export function GoogleFxSearchMock() {
       if (now - runtime.current.lastReactUpdate > 100) {
         runtime.current.lastReactUpdate = now;
         setRate(runtime.current.currentRate);
-        setTrafficLabel(`edm ${Math.min(100, Math.round((smoothIntensity + bassEnergy * 0.35) * 145))}%`);
+        setTrafficLabel(
+          `edm ${Math.min(
+            100,
+            Math.round((smoothIntensity + bassEnergy * 0.35) * 145)
+          )}%`
+        );
       }
     }
   };
 
   useEffect(() => {
+    const currentRuntime = runtime.current;
+
     const loop = () => {
-      drawChart(runtime.current.isPlaying);
-      runtime.current.rafId = window.requestAnimationFrame(loop);
+      drawChart(currentRuntime.isPlaying);
+      currentRuntime.rafId = window.requestAnimationFrame(loop);
     };
 
-    runtime.current.rafId = window.requestAnimationFrame(loop);
+    currentRuntime.rafId = window.requestAnimationFrame(loop);
 
-    const handleResize = () => drawChart(runtime.current.isPlaying);
-    window.addEventListener("resize", handleResize);
+    const handleResize = () => drawChart(currentRuntime.isPlaying);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      if (runtime.current.rafId) {
-        window.cancelAnimationFrame(runtime.current.rafId);
+      if (currentRuntime.rafId) {
+        window.cancelAnimationFrame(currentRuntime.rafId);
       }
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -370,14 +406,16 @@ export function GoogleFxSearchMock() {
     runtime.current.currentRate = BASE_RATE;
     runtime.current.targetRate = BASE_RATE;
     setRate(BASE_RATE);
-    setTrafficLabel("idle");
+    setTrafficLabel('idle');
   };
 
   const syncAudioDuration = () => {
     const audioElement = playerRef.current;
     if (!audioElement) return;
 
-    const nextDuration = Number.isFinite(audioElement.duration) ? audioElement.duration : 0;
+    const nextDuration = Number.isFinite(audioElement.duration)
+      ? audioElement.duration
+      : 0;
 
     if (nextDuration > 0) {
       setDuration(nextDuration);
@@ -390,7 +428,9 @@ export function GoogleFxSearchMock() {
 
     if (!audioElement || !progressElement) return;
 
-    const realDuration = Number.isFinite(audioElement.duration) ? audioElement.duration : duration;
+    const realDuration = Number.isFinite(audioElement.duration)
+      ? audioElement.duration
+      : duration;
     if (!realDuration || realDuration <= 0) return;
 
     const rect = progressElement.getBoundingClientRect();
@@ -399,14 +439,6 @@ export function GoogleFxSearchMock() {
 
     audioElement.currentTime = nextTime;
     setCurrentTime(nextTime);
-  };
-
-  const stopDragging = () => {
-    draggingRef.current = false;
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", stopDragging);
-    window.removeEventListener("touchmove", handleTouchMove);
-    window.removeEventListener("touchend", stopDragging);
   };
 
   const handleMouseMove = (event: MouseEvent) => {
@@ -421,33 +453,43 @@ export function GoogleFxSearchMock() {
     seekByClientX(touch.clientX);
   };
 
+  const stopDragging = () => {
+    draggingRef.current = false;
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', stopDragging);
+    window.removeEventListener('touchmove', handleTouchMove);
+    window.removeEventListener('touchend', stopDragging);
+  };
+
   const handleProgressMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     draggingRef.current = true;
     seekByClientX(event.clientX);
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDragging);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', stopDragging);
   };
 
-  const handleProgressTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleProgressTouchStart = (
+    event: React.TouchEvent<HTMLDivElement>
+  ) => {
     const touch = event.touches[0];
     if (!touch) return;
 
     draggingRef.current = true;
     seekByClientX(touch.clientX);
 
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
-    window.addEventListener("touchend", stopDragging);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', stopDragging);
   };
 
   const togglePlay = async () => {
     const audioElement = playerRef.current;
     if (!audioElement) return;
 
-    setAudioError("");
+    setAudioError('');
 
     try {
-      if (!audioElement.getAttribute("src")) {
+      if (!audioElement.getAttribute('src')) {
         audioElement.src = AUDIO_SRC;
         audioElement.load();
       }
@@ -467,7 +509,8 @@ export function GoogleFxSearchMock() {
         setIsPlaying(false);
       }
     } catch (error) {
-      console.error("Audio play failed:", error);
+      // eslint-disable-next-line no-console
+      console.error('Audio play failed:', error);
 
       runtime.current.isPlaying = false;
       setIsPlaying(false);
@@ -493,7 +536,11 @@ export function GoogleFxSearchMock() {
 
             <div className="ml-auto flex shrink-0 items-center gap-4 text-[#bdc1c6]">
               {searchQuery ? (
-                <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search">
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                >
                   <X className="h-5 w-5" />
                 </button>
               ) : null}
@@ -511,12 +558,14 @@ export function GoogleFxSearchMock() {
               key={tab}
               type="button"
               className={[
-                "relative pb-[13px] transition-colors hover:text-[#e8eaed]",
-                tab === "All" ? "text-[#e8eaed] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-[#e8eaed]" : "",
-              ].join(" ")}
+                'relative pb-[13px] transition-colors hover:text-[#e8eaed]',
+                tab === 'All'
+                  ? 'text-[#e8eaed] after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-[#e8eaed]'
+                  : '',
+              ].join(' ')}
             >
               {tab}
-              {["More", "Tools"].includes(tab) ? (
+              {['More', 'Tools'].includes(tab) ? (
                 <ChevronDown className="ml-1 inline h-3 w-3 align-middle" />
               ) : null}
             </button>
@@ -526,7 +575,9 @@ export function GoogleFxSearchMock() {
 
       <section className="mx-auto grid w-full max-w-[681px] grid-cols-1 gap-8 px-2 pt-8 md:grid-cols-[318px_1fr]">
         <div>
-          <p className="text-[16px] font-medium text-[#bdc1c6]">1 United States Dollar equals</p>
+          <p className="text-[16px] font-medium text-[#bdc1c6]">
+            1 United States Dollar equals
+          </p>
 
           <div className="mt-1 text-[40px] font-normal leading-[1.05] tracking-[-1.2px] text-[#e8eaed]">
             {formatIDR(rate)}
@@ -548,7 +599,8 @@ export function GoogleFxSearchMock() {
                 className="h-full rounded-none border-0 bg-transparent px-3 text-[16px] font-medium text-[#e8eaed] shadow-none outline-none"
               />
               <button className="flex items-center justify-end gap-2 border-l border-[#3c4043] px-3 text-[14px] font-semibold text-[#e8eaed]">
-                United States Dollar <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
+                United States Dollar{' '}
+                <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
               </button>
             </div>
 
@@ -559,7 +611,8 @@ export function GoogleFxSearchMock() {
                 className="h-full rounded-none border-0 bg-transparent px-3 text-[16px] font-medium text-[#e8eaed] shadow-none outline-none"
               />
               <button className="flex items-center justify-end gap-2 border-l border-[#3c4043] px-3 text-[14px] font-semibold text-[#e8eaed]">
-                Indonesian Rupiah <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
+                Indonesian Rupiah{' '}
+                <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
               </button>
             </div>
           </div>
@@ -573,9 +626,9 @@ export function GoogleFxSearchMock() {
                   key={range}
                   type="button"
                   className={[
-                    "rounded-full px-2 py-[5px] transition-colors hover:text-[#e8eaed]",
-                    range === "1M" ? "bg-[#3a424c] text-[#d2e3fc]" : "",
-                  ].join(" ")}
+                    'rounded-full px-2 py-[5px] transition-colors hover:text-[#e8eaed]',
+                    range === '1M' ? 'bg-[#3a424c] text-[#d2e3fc]' : '',
+                  ].join(' ')}
                 >
                   {range}
                 </button>
@@ -602,7 +655,8 @@ export function GoogleFxSearchMock() {
               onDurationChange={syncAudioDuration}
               onCanPlay={syncAudioDuration}
               onTimeUpdate={(event) => {
-                if (!draggingRef.current) setCurrentTime(event.currentTarget.currentTime || 0);
+                if (!draggingRef.current)
+                  setCurrentTime(event.currentTarget.currentTime || 0);
               }}
               onPlay={() => {
                 runtime.current.isPlaying = true;
@@ -616,7 +670,11 @@ export function GoogleFxSearchMock() {
                 setIsPlaying(false);
                 resetToIdle();
               }}
-              onError={() => setAudioError(`Audio not found or cannot be loaded: public${AUDIO_SRC}`)}
+              onError={() =>
+                setAudioError(
+                  `Audio not found or cannot be loaded: public${AUDIO_SRC}`
+                )
+              }
               className="hidden"
             />
 
@@ -625,9 +683,13 @@ export function GoogleFxSearchMock() {
                 type="button"
                 onClick={togglePlay}
                 className="relative z-30 grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-[#a8c7fa] p-0 text-[#062e6f] hover:bg-[#b8d1ff]"
-                aria-label={isPlaying ? "Pause song" : "Play song"}
+                aria-label={isPlaying ? 'Pause song' : 'Play song'}
               >
-                {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="ml-0.5 h-5 w-5 fill-current" />}
+                {isPlaying ? (
+                  <Pause className="h-5 w-5 fill-current" />
+                ) : (
+                  <Play className="ml-0.5 h-5 w-5 fill-current" />
+                )}
               </button>
 
               <div className="min-w-[44px] text-right text-[11px] font-semibold tabular-nums text-[#bdc1c6]">
@@ -663,7 +725,10 @@ export function GoogleFxSearchMock() {
             </div>
 
             <p className="mt-2 text-[11px] font-medium text-[#9aa0a6]">
-              Load your mp3 from <code className="rounded bg-[#303134] px-1 py-0.5">public{AUDIO_SRC}</code>
+              Load your mp3 from{' '}
+              <code className="rounded bg-[#303134] px-1 py-0.5">
+                public{AUDIO_SRC}
+              </code>
             </p>
 
             {audioError ? (
@@ -691,10 +756,10 @@ export function GoogleFxSearchMock() {
             </h2>
 
             {[
-              "How much is 1 USD in IDR?",
-              "Why is rupiah so weak?",
-              "How much is 1 dollar in Indonesian rupiah today?",
-              "How much is $100 worth in Bali?",
+              'How much is 1 USD in IDR?',
+              'Why is rupiah so weak?',
+              'How much is 1 dollar in Indonesian rupiah today?',
+              'How much is $100 worth in Bali?',
             ].map((question) => (
               <button
                 key={question}

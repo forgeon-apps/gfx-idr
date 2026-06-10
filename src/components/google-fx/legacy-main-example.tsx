@@ -1,6 +1,6 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 
-import { GoogleFxSearchMock } from "@/components/google-fx/GoogleFxSearchMock";
+import { GoogleFxSearchMock } from '@/components/google-fx/GoogleFxSearchMock';
 
 type IMainProps = {
   meta: ReactNode;
