@@ -187,10 +187,11 @@ export function GoogleFxSearchMock() {
     const { width } = rect;
     const { height } = rect;
 
-    const plotLeft = 54;
+    const isCompact = width < 430;
+    const plotLeft = isCompact ? 42 : 54;
     const plotRight = width - 2;
     const plotTop = 10;
-    const plotBottom = height - 34;
+    const plotBottom = height - (isCompact ? 28 : 34);
     const plotWidth = plotRight - plotLeft;
     const plotHeight = plotBottom - plotTop;
 
@@ -243,7 +244,9 @@ export function GoogleFxSearchMock() {
 
     ctx.clearRect(0, 0, width, height);
 
-    ctx.font = '700 11px Arial, sans-serif';
+    ctx.font = isCompact
+      ? '700 10px Arial, sans-serif'
+      : '700 11px Arial, sans-serif';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = muted;
 
@@ -258,13 +261,19 @@ export function GoogleFxSearchMock() {
       ctx.lineTo(plotRight, y);
       ctx.stroke();
 
-      ctx.fillText(new Intl.NumberFormat('id-ID').format(value), 0, y);
+      ctx.fillText(
+        new Intl.NumberFormat('id-ID').format(value),
+        isCompact ? 1 : 0,
+        y
+      );
     });
 
-    ctx.font = '700 12px Arial, sans-serif';
+    ctx.font = isCompact
+      ? '700 10px Arial, sans-serif'
+      : '700 12px Arial, sans-serif';
     ctx.fillStyle = '#e8eaed';
-    ctx.fillText('20 May', plotLeft + plotWidth * 0.34, height - 16);
-    ctx.fillText('1 Jun', plotLeft + plotWidth * 0.75, height - 16);
+    ctx.fillText('20 May', plotLeft + plotWidth * 0.28, height - 14);
+    ctx.fillText('1 Jun', plotLeft + plotWidth * 0.72, height - 14);
 
     const points = googleLikeSeries.map((value, index) => {
       let yValue = value;
@@ -519,22 +528,22 @@ export function GoogleFxSearchMock() {
   };
 
   return (
-    <main className="min-h-screen bg-[#202124] text-[#e8eaed] antialiased [--google-fx-green:#81c995]">
+    <main className="min-h-screen overflow-x-hidden bg-[#202124] text-[#e8eaed] antialiased [--google-fx-green:#81c995]">
       <header className="border-b border-[#3c4043]">
-        <div className="mx-auto flex h-[78px] w-full max-w-[1066px] items-center gap-10 px-6">
-          <div className="select-none text-[30px] font-medium tracking-[-1.9px] text-white">
+        <div className="mx-auto flex w-full max-w-[1066px] flex-col items-start gap-4 px-4 py-4 sm:h-[78px] sm:flex-row sm:items-center sm:gap-10 sm:px-6 sm:py-0">
+          <div className="select-none text-[28px] font-medium tracking-[-1.9px] text-white sm:text-[30px]">
             Google
           </div>
 
-          <div className="flex h-[52px] flex-1 items-center rounded-full bg-[#4b4f56] pl-5 pr-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)]">
+          <div className="flex h-[48px] w-full min-w-0 flex-1 items-center rounded-full bg-[#4b4f56] pl-4 pr-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)] sm:h-[52px] sm:pl-5 sm:pr-4">
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search Google or type a URL"
-              className="h-full flex-1 border-0 bg-transparent p-0 text-[16px] font-medium text-[#f1f3f4] shadow-none outline-none placeholder:text-[#bdc1c6]"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] font-medium text-[#f1f3f4] shadow-none outline-none placeholder:text-[#bdc1c6] sm:text-[16px]"
             />
 
-            <div className="ml-auto flex shrink-0 items-center gap-4 text-[#bdc1c6]">
+            <div className="ml-auto flex shrink-0 items-center gap-3 text-[#bdc1c6] sm:gap-4">
               {searchQuery ? (
                 <button
                   type="button"
@@ -552,7 +561,7 @@ export function GoogleFxSearchMock() {
           </div>
         </div>
 
-        <div className="mx-auto flex max-w-[681px] items-end gap-7 px-2 text-[14px] font-medium text-[#9aa0a6] md:ml-[calc(50%-340px)]">
+        <div className="mx-auto flex max-w-full items-end gap-6 overflow-x-auto whitespace-nowrap px-4 text-[13px] font-medium text-[#9aa0a6] sm:max-w-[681px] sm:gap-7 sm:px-2 sm:text-[14px] md:ml-[calc(50%-340px)]">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -573,17 +582,17 @@ export function GoogleFxSearchMock() {
         </div>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[681px] grid-cols-1 gap-8 px-2 pt-8 md:grid-cols-[318px_1fr]">
+      <section className="mx-auto grid w-full max-w-[681px] grid-cols-1 gap-7 px-4 pt-6 sm:px-2 sm:pt-8 md:grid-cols-[318px_1fr] md:gap-8">
         <div>
-          <p className="text-[16px] font-medium text-[#bdc1c6]">
+          <p className="text-[14px] font-medium text-[#bdc1c6] sm:text-[16px]">
             1 United States Dollar equals
           </p>
 
-          <div className="mt-1 text-[40px] font-normal leading-[1.05] tracking-[-1.2px] text-[#e8eaed]">
+          <div className="mt-1 text-[32px] font-normal leading-[1.05] tracking-[-1.2px] text-[#e8eaed] sm:text-[40px]">
             {formatIDR(rate)}
           </div>
 
-          <h1 className="mt-1 text-[40px] font-normal leading-[1.12] tracking-[-1.6px] text-[#e8eaed]">
+          <h1 className="mt-1 text-[32px] font-normal leading-[1.12] tracking-[-1.6px] text-[#e8eaed] sm:text-[40px]">
             Indonesian Rupiah
           </h1>
 
@@ -592,25 +601,25 @@ export function GoogleFxSearchMock() {
           </p>
 
           <div className="mt-5 overflow-hidden rounded-[6px] border border-[#5f6368]">
-            <div className="grid h-[46px] grid-cols-[120px_1fr] border-b border-[#3c4043]">
+            <div className="grid h-[46px] grid-cols-[96px_1fr] border-b border-[#3c4043] sm:grid-cols-[120px_1fr]">
               <input
                 value={usd}
                 onChange={(event) => setUsd(event.target.value)}
-                className="h-full rounded-none border-0 bg-transparent px-3 text-[16px] font-medium text-[#e8eaed] shadow-none outline-none"
+                className="h-full rounded-none border-0 bg-transparent px-3 text-[15px] font-medium text-[#e8eaed] shadow-none outline-none sm:text-[16px]"
               />
-              <button className="flex items-center justify-end gap-2 border-l border-[#3c4043] px-3 text-[14px] font-semibold text-[#e8eaed]">
+              <button className="flex min-w-0 items-center justify-end gap-1 border-l border-[#3c4043] px-2 text-right text-[12px] font-semibold leading-tight text-[#e8eaed] sm:gap-2 sm:px-3 sm:text-[14px]">
                 United States Dollar{' '}
                 <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
               </button>
             </div>
 
-            <div className="grid h-[46px] grid-cols-[120px_1fr]">
+            <div className="grid h-[46px] grid-cols-[96px_1fr] sm:grid-cols-[120px_1fr]">
               <input
                 value={converted}
                 readOnly
-                className="h-full rounded-none border-0 bg-transparent px-3 text-[16px] font-medium text-[#e8eaed] shadow-none outline-none"
+                className="h-full rounded-none border-0 bg-transparent px-3 text-[15px] font-medium text-[#e8eaed] shadow-none outline-none sm:text-[16px]"
               />
-              <button className="flex items-center justify-end gap-2 border-l border-[#3c4043] px-3 text-[14px] font-semibold text-[#e8eaed]">
+              <button className="flex min-w-0 items-center justify-end gap-1 border-l border-[#3c4043] px-2 text-right text-[12px] font-semibold leading-tight text-[#e8eaed] sm:gap-2 sm:px-3 sm:text-[14px]">
                 Indonesian Rupiah{' '}
                 <ChevronDown className="h-4 w-4 text-[#9aa0a6]" />
               </button>
@@ -620,7 +629,7 @@ export function GoogleFxSearchMock() {
 
         <div className="relative pt-1">
           <div className="mb-[23px] flex items-center justify-between">
-            <div className="flex gap-[22px] text-[13px] font-bold text-[#9aa0a6]">
+            <div className="flex gap-3 overflow-x-auto whitespace-nowrap text-[12px] font-bold text-[#9aa0a6] sm:gap-[22px] sm:text-[13px]">
               {ranges.map((range) => (
                 <button
                   key={range}
@@ -636,7 +645,7 @@ export function GoogleFxSearchMock() {
             </div>
           </div>
 
-          <canvas ref={canvasRef} className="h-[180px] w-full" />
+          <canvas ref={canvasRef} className="h-[190px] w-full sm:h-[180px]" />
 
           <div className="mt-3 flex items-center justify-end text-[11px] font-semibold text-[#9aa0a6]">
             <span className="mr-2 h-2 w-2 rounded-full bg-[#81c995]" />
@@ -678,7 +687,7 @@ export function GoogleFxSearchMock() {
               className="hidden"
             />
 
-            <div className="flex w-full items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-3 sm:flex-nowrap">
               <button
                 type="button"
                 onClick={togglePlay}
@@ -692,7 +701,7 @@ export function GoogleFxSearchMock() {
                 )}
               </button>
 
-              <div className="min-w-[44px] text-right text-[11px] font-semibold tabular-nums text-[#bdc1c6]">
+              <div className="min-w-[42px] text-right text-[11px] font-semibold tabular-nums text-[#bdc1c6]">
                 {formatShortTime(currentTime)}
               </div>
 
@@ -706,7 +715,7 @@ export function GoogleFxSearchMock() {
                 tabIndex={0}
                 onMouseDown={handleProgressMouseDown}
                 onTouchStart={handleProgressTouchStart}
-                className="group relative h-7 flex-1 cursor-pointer select-none"
+                className="group order-last relative h-9 w-full flex-[1_0_100%] cursor-pointer select-none sm:order-none sm:h-7 sm:flex-1 sm:basis-auto"
               >
                 <div className="absolute left-0 top-1/2 h-[4px] w-full -translate-y-1/2 rounded-full bg-[#3c4043]" />
                 <div
@@ -719,7 +728,7 @@ export function GoogleFxSearchMock() {
                 />
               </div>
 
-              <div className="min-w-[44px] text-[11px] font-semibold tabular-nums text-[#bdc1c6]">
+              <div className="min-w-[42px] text-[11px] font-semibold tabular-nums text-[#bdc1c6]">
                 {formatShortTime(duration)}
               </div>
             </div>
@@ -740,11 +749,11 @@ export function GoogleFxSearchMock() {
         </div>
       </section>
 
-      <section className="relative z-0 mx-auto mt-8 w-full max-w-[681px] px-2">
+      <section className="relative z-0 mx-auto mt-8 w-full max-w-[681px] px-4 sm:px-2">
         <div className="relative border-t border-[#3c4043] pt-0">
           <button
             type="button"
-            className="absolute left-1/2 top-0 flex h-10 w-[372px] max-w-[80vw] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#303134] text-[14px] font-bold text-[#e8eaed] hover:bg-[#36383d] hover:text-white"
+            className="absolute left-1/2 top-0 flex h-10 w-[min(372px,88vw)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#303134] text-[13px] font-bold text-[#e8eaed] hover:bg-[#36383d] hover:text-white sm:text-[14px]"
           >
             More about USD/IDR
             <ChevronDown className="ml-2 h-4 w-4 -rotate-90" />
